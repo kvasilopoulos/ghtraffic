@@ -1,6 +1,11 @@
-
+#' Traffic information of a github repository
+#'
+#' @param owner the owner of the repo.
+#' @param repo the name of the repo.
+#' @param ... Name-value pairs giving API parameters.
+#'
 #' @importFrom gh gh
-#' @importFrom dplyr as_tibble mutate
+#' @importFrom dplyr mutate bind_rows
 #' @importFrom purrr map reduce
 #' @export
 repo_traffic <- function(owner, repo, ...) {
@@ -11,9 +16,14 @@ repo_traffic <- function(owner, repo, ...) {
   request$views %>%
     map(as_tibble) %>%
     reduce(bind_rows) %>%
-    mutate(timestamp = as.Date(timestamp))
+    mutate(timestamp = as.Date(.data$timestamp))
 }
 
+#' Extract the names of a username
+#'
+#' @param username the username.
+#' @inheritParams repo_traffic
+#'
 #' @export
 repo_names <- function(username, ...) {
   nms <- list()
@@ -21,9 +31,14 @@ repo_names <- function(username, ...) {
   vapply(repos, "[[", "", "name")
 }
 
-
+#' Get an overview with the sum of the traffic data of a username
+#'
+#' @param username the username.
+#' @inheritParams repo_traffic
+#'
 #' @importFrom purrr map map2 reduce possibly set_names
-#' @importFrom dplyr select
+#' @importFrom dplyr select summarize_all %>% .data
+#' @importFrom tibble as_tibble add_column tibble
 #' @export
 repo_traffic_overview <- function(username, ...) {
 
@@ -38,7 +53,7 @@ repo_traffic_overview <- function(username, ...) {
     map(summarize_all, mean) %>%
     map2(nms, ~ add_column(.x, .y)) %>%
     reduce(bind_rows) %>%
-    select(repo = .y, count, uniques)
+    select(repo = .data$.y, .data$count, .data$uniques)
 
 }
 

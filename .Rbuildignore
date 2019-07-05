@@ -1,3 +1,6 @@
 ^ghtraffic\.Rproj$
 ^\.Rproj\.user$
 ^\.httr-oauth$
+^README\.Rmd$
+^LICENSE\.md$
+^\.github$
